@@ -62,7 +62,7 @@ __all__ = [
 DTYPE = _tree.DTYPE
 DOUBLE = _tree.DOUBLE
 
-CRITERIA_CLF = {"gini": _criterion.Gini, "entropy": _criterion.Entropy}
+CRITERIA_CLF = {"gini": _criterion.Gini, "gini*": _criterion.GiniMod, "entropy": _criterion.Entropy}
 # TODO: Remove "mse" and "mae" in version 1.2.
 CRITERIA_REG = {
     "squared_error": _criterion.MSE,
