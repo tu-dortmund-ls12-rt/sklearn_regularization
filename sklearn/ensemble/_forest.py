@@ -155,6 +155,7 @@ def _parallel_build_trees(
     verbose=0,
     class_weight=None,
     n_samples_bootstrap=None,
+    delimiter=2,
 ):
     """
     Private function used to fit a single tree in parallel."""
@@ -180,10 +181,10 @@ def _parallel_build_trees(
                 curr_sample_weight *= compute_sample_weight("auto", y, indices=indices)
         elif class_weight == "balanced_subsample":
             curr_sample_weight *= compute_sample_weight("balanced", y, indices=indices)
-
-        tree.fit(X, y, sample_weight=curr_sample_weight, check_input=False)
+        
+        tree.fit(X, y, delimiter=delimiter, sample_weight=curr_sample_weight, check_input=False)
     else:
-        tree.fit(X, y, sample_weight=sample_weight, check_input=False)
+        tree.fit(X, y, delimiter=delimiter, sample_weight=sample_weight, check_input=False)
 
     return tree
 
@@ -294,7 +295,7 @@ class BaseForest(MultiOutputMixin, BaseEnsemble, metaclass=ABCMeta):
 
         return sparse_hstack(indicators).tocsr(), n_nodes_ptr
 
-    def fit(self, X, y, sample_weight=None):
+    def fit(self, X, y, sample_weight=None, delimiter = 2):
         """
         Build a forest of trees from the training set (X, y).
 
@@ -454,6 +455,7 @@ class BaseForest(MultiOutputMixin, BaseEnsemble, metaclass=ABCMeta):
                     verbose=self.verbose,
                     class_weight=self.class_weight,
                     n_samples_bootstrap=n_samples_bootstrap,
+                    delimiter=delimiter,
                 )
                 for i, t in enumerate(trees)
             )
@@ -655,6 +657,7 @@ class ForestClassifier(ClassifierMixin, BaseForest, metaclass=ABCMeta):
         warm_start=False,
         class_weight=None,
         max_samples=None,
+        test=5,
     ):
         super().__init__(
             base_estimator,

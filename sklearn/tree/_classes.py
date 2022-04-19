@@ -148,9 +148,8 @@ class BaseDecisionTree(MultiOutputMixin, BaseEstimator, metaclass=ABCMeta):
         return self.tree_.n_leaves
 
     def fit(
-        self, X, y, sample_weight=None, check_input=True, X_idx_sorted="deprecated"
+        self, X, y, delimiter=2, sample_weight=None, check_input=True, X_idx_sorted="deprecated"
     ):
-
         random_state = check_random_state(self.random_state)
 
         if self.ccp_alpha < 0.0:
@@ -417,7 +416,7 @@ class BaseDecisionTree(MultiOutputMixin, BaseEstimator, metaclass=ABCMeta):
                 self.min_impurity_decrease,
             )
 
-        builder.build(self.tree_, X, y, sample_weight)
+        builder.build(self.tree_, X, y, delimiter, sample_weight)
 
         if self.n_outputs_ == 1 and is_classifier(self):
             self.n_classes_ = self.n_classes_[0]
@@ -891,7 +890,7 @@ class DecisionTreeClassifier(ClassifierMixin, BaseDecisionTree):
         )
 
     def fit(
-        self, X, y, sample_weight=None, check_input=True, X_idx_sorted="deprecated"
+        self, X, y, delimiter=5, sample_weight=None, check_input=True, X_idx_sorted="deprecated"
     ):
         """Build a decision tree classifier from the training set (X, y).
 
@@ -931,6 +930,7 @@ class DecisionTreeClassifier(ClassifierMixin, BaseDecisionTree):
         super().fit(
             X,
             y,
+            delimiter,
             sample_weight=sample_weight,
             check_input=check_input,
             X_idx_sorted=X_idx_sorted,
@@ -1261,7 +1261,7 @@ class DecisionTreeRegressor(RegressorMixin, BaseDecisionTree):
         )
 
     def fit(
-        self, X, y, sample_weight=None, check_input=True, X_idx_sorted="deprecated"
+        self, X, y, delimiter=5, sample_weight=None, check_input=True, X_idx_sorted="deprecated"
     ):
         """Build a decision tree regressor from the training set (X, y).
 
@@ -1300,6 +1300,7 @@ class DecisionTreeRegressor(RegressorMixin, BaseDecisionTree):
         super().fit(
             X,
             y,
+            delimiter,
             sample_weight=sample_weight,
             check_input=check_input,
             X_idx_sorted=X_idx_sorted,

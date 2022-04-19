@@ -40,6 +40,8 @@ cdef class Criterion:
     cdef double weighted_n_left          # Weighted number of samples in the left node
     cdef double weighted_n_right         # Weighted number of samples in the right node
 
+    cdef int delimiter                   # Used for the modded Gini index
+
     cdef double* sum_total          # For classification criteria, the sum of the
                                     # weighted count of each label. For regression,
                                     # the sum of w*y. sum_total[k] is equal to
@@ -54,7 +56,7 @@ cdef class Criterion:
     # Methods
     cdef int init(self, const DOUBLE_t[:, ::1] y, DOUBLE_t* sample_weight,
                   double weighted_n_samples, SIZE_t* samples, SIZE_t start,
-                  SIZE_t end) nogil except -1
+                  SIZE_t end, int delimiter) nogil except -1
     cdef int reset(self) nogil except -1
     cdef int reverse_reset(self) nogil except -1
     cdef int update(self, SIZE_t new_pos) nogil except -1
