@@ -117,7 +117,7 @@ cdef class Splitter:
                    object X,
                    const DOUBLE_t[:, ::1] y,
                    DOUBLE_t* sample_weight,
-                   int delimiter) except -1:
+                   double factor) except -1:
         """Initialize the splitter.
 
         Take in the input data X, the target Y, and optional sample weights.
@@ -139,7 +139,7 @@ cdef class Splitter:
             are assumed to have uniform weight.
         """
 
-        self.delimiter = delimiter
+        self.factor = factor
 
         self.rand_r_state = self.random_state.randint(0, RAND_R_MAX)
         cdef SIZE_t n_samples = X.shape[0]
@@ -210,7 +210,7 @@ cdef class Splitter:
                             self.samples,
                             start,
                             end,
-                            self.delimiter)
+                            self.factor)
 
         weighted_n_node_samples[0] = self.criterion.weighted_n_node_samples
         return 0
@@ -247,7 +247,7 @@ cdef class BaseDenseSplitter(Splitter):
                   object X,
                   const DOUBLE_t[:, ::1] y,
                   DOUBLE_t* sample_weight,
-                  int delimiter) except -1:
+                  double factor) except -1:
         """Initialize the splitter
 
         Returns -1 in case of failure to allocate memory (and raise MemoryError)
@@ -255,7 +255,7 @@ cdef class BaseDenseSplitter(Splitter):
         """
 
         # Call parent init
-        Splitter.init(self, X, y, sample_weight, delimiter)
+        Splitter.init(self, X, y, sample_weight, factor)
 
         self.X = X
         return 0
@@ -806,14 +806,14 @@ cdef class BaseSparseSplitter(Splitter):
     cdef int init(self,
                   object X,
                   const DOUBLE_t[:, ::1] y,
-                  DOUBLE_t* sample_weight, int delimiter) except -1:
+                  DOUBLE_t* sample_weight, double factor) except -1:
         """Initialize the splitter
 
         Returns -1 in case of failure to allocate memory (and raise MemoryError)
         or 0 otherwise.
         """
         # Call parent init
-        Splitter.init(self, X, y, sample_weight, delimiter)
+        Splitter.init(self, X, y, sample_weight, factor)
 
         if not isinstance(X, csc_matrix):
             raise ValueError("X should be in csc format")

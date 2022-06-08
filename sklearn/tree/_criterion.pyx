@@ -60,7 +60,7 @@ cdef class Criterion:
 
     cdef int init(self, const DOUBLE_t[:, ::1] y, DOUBLE_t* sample_weight,
                   double weighted_n_samples, SIZE_t* samples, SIZE_t start,
-                  SIZE_t end, int delimiter) nogil except -1:
+                  SIZE_t end, double factor) nogil except -1:
         """Placeholder for a method which will initialize the criterion.
 
         Returns -1 in case of failure to allocate memory (and raise MemoryError)
@@ -281,7 +281,7 @@ cdef class ClassificationCriterion(Criterion):
 
     cdef int init(self, const DOUBLE_t[:, ::1] y,
                   DOUBLE_t* sample_weight, double weighted_n_samples,
-                  SIZE_t* samples, SIZE_t start, SIZE_t end, int delimiter) nogil except -1:
+                  SIZE_t* samples, SIZE_t start, SIZE_t end, double factor) nogil except -1:
         """Initialize the criterion.
 
         This initializes the criterion at node samples[start:end] and children
@@ -313,7 +313,7 @@ cdef class ClassificationCriterion(Criterion):
         self.n_node_samples = end - start
         self.weighted_n_samples = weighted_n_samples
         self.weighted_n_node_samples = 0.0
-        self.delimiter = delimiter
+        self.factor = factor
 
         cdef SIZE_t* n_classes = self.n_classes
         cdef double* sum_total = self.sum_total
@@ -734,7 +734,6 @@ cdef class GiniMod(ClassificationCriterion):
         regularizer/=(self.weighted_n_right+self.weighted_n_left)
         regularizer=(1-regularizer)/5
 
-        # printf("Parent: %f\n", regularizer)
 
         return (gini / self.n_outputs)+regularizer
 
@@ -785,19 +784,16 @@ cdef class GiniMod(ClassificationCriterion):
 
         cdef double regularizer=0
         cdef unsigned long num_samples=self.end-self.start
-        cdef double deli = min(num_samples, self.delimiter)
-        # printf("Delimiter: %f\n", deli)
-        deli = num_samples/deli
+        cdef double fac = min(num_samples, self.factor)
+
         if self.weighted_n_left > self.weighted_n_right:
             regularizer=self.weighted_n_left-self.weighted_n_right
         else:
             regularizer=self.weighted_n_right-self.weighted_n_left
         regularizer/=(self.weighted_n_right+self.weighted_n_left)
-        # printf("Delimiter: %f\n", deli)
-        # printf("Before: %f\n", regularizer)
-        regularizer=(1-regularizer)/deli
 
-        # printf("After: %f\n", regularizer)
+        regularizer=(fac * (1-regularizer))/num_samples
+
 
         impurity_left[0] = (gini_left / self.n_outputs)+regularizer
         impurity_right[0] = (gini_right / self.n_outputs)+regularizer
@@ -864,7 +860,7 @@ cdef class RegressionCriterion(Criterion):
 
     cdef int init(self, const DOUBLE_t[:, ::1] y, DOUBLE_t* sample_weight,
                   double weighted_n_samples, SIZE_t* samples, SIZE_t start,
-                  SIZE_t end, int delimiter) nogil except -1:
+                  SIZE_t end, double factor) nogil except -1:
         """Initialize the criterion.
 
         This initializes the criterion at node samples[start:end] and children
@@ -1152,7 +1148,7 @@ cdef class MAE(RegressionCriterion):
 
     cdef int init(self, const DOUBLE_t[:, ::1] y, DOUBLE_t* sample_weight,
                   double weighted_n_samples, SIZE_t* samples, SIZE_t start,
-                  SIZE_t end, int delimiter) nogil except -1:
+                  SIZE_t end, double factor) nogil except -1:
         """Initialize the criterion.
 
         This initializes the criterion at node samples[start:end] and children
