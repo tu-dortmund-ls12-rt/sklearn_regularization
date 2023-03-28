@@ -56,6 +56,15 @@ It is currently maintained by a team of volunteers.
 
 Website: https://scikit-learn.org
 
+
+Inclusion of Regularization Term
+--------------------------------
+
+This varient of sklearn has been changed to accomodate usage of a regularization factor. The idea behind this factor is, to influence the split criterion in a way, that favours imbalanced split probabilities.
+
+
+To use this regularization term, two things need to be done. First, when generating the classifier, the criterion ``gini*`` needs to be picked. That is the modded split criterion based on the gini criterion. Secondly, when fitting the model, the regularization factor can be set. It's name is ``factor`` and is of type ``float``.
+
 Installation
 ------------
 
